@@ -1,12 +1,15 @@
 import type { Story, StoryNeighbor, StoryNeighbors } from './types';
 import { storyLinePreview } from './types';
 
+/** 兼容 D1 / 本地 mock 的最小接口 */
 export type DbLike = {
   prepare: (query: string) => {
     bind: (...args: unknown[]) => {
       all: <T>() => Promise<{ results: T[] }>;
       first: <T>() => Promise<T | null>;
     };
+    all: <T>() => Promise<{ results: T[] }>;
+    first: <T>() => Promise<T | null>;
   };
 };
 
@@ -73,9 +76,8 @@ export async function getStoriesFromDb(
   query += ' ORDER BY updated_at DESC LIMIT ? OFFSET ?';
   params.push(limit, Math.max(0, offset));
 
-  const stmt = db.prepare(query);
-  const bound = params.reduce((s, p) => s.bind(p), stmt);
-  const { results } = await bound.all<Story>();
+  // D1 必须一次 bind 全部参数；逐个 bind 会覆盖之前的绑定
+  const { results } = await db.prepare(query).bind(...params).all<Story>();
   return results;
 }
 

@@ -94,7 +94,8 @@ app.get('/api/stories', async (c) => {
     return c.json({ stories, hasMore, stats });
   } catch (error) {
     console.error(error);
-    return c.json({ error: 'database_unavailable' }, 503);
+    const message = error instanceof Error ? error.message : String(error);
+    return c.json({ error: 'database_unavailable', message }, 503);
   }
 });
 
