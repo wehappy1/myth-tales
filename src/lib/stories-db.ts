@@ -123,31 +123,92 @@ export async function getStoriesBySourceFromDb(
   return results;
 }
 
-function toNeighbor(story: Story): StoryNeighbor {
+type NeighborRow = {
+  id: string;
+  title: string;
+  content: string;
+  translation: string | null;
+  summary: string | null;
+};
+
+function rowToNeighbor(row: NeighborRow): StoryNeighbor {
   return {
-    id: story.id,
-    title: story.title,
-    preview: storyLinePreview(story),
+    id: row.id,
+    title: row.title,
+    preview: storyLinePreview(row),
   };
 }
 
+/**
+ * 只查当前篇目的上/下一则，避免把整本书拉进内存（世说新语等上千则时原先会很慢）
+ */
 export async function getStoryNeighborsFromDb(
   db: DbLike,
   id: string,
 ): Promise<StoryNeighbors | null> {
-  const story = await getStoryByIdFromDb(db, id);
-  if (!story) return null;
-  const sourceText = story.source_text ?? null;
-  const siblings = sourceText
-    ? await getStoriesBySourceFromDb(db, sourceText)
-    : [story];
-  const index = siblings.findIndex((s) => s.id === id);
-  if (index < 0) return null;
+  const current = await db
+    .prepare(
+      'SELECT rowid AS rid, id, source_text FROM stories WHERE id = ?',
+    )
+    .bind(id)
+    .first<{ rid: number; id: string; source_text: string | null }>();
+  if (!current) return null;
+
+  const sourceText = current.source_text ?? null;
+  if (!sourceText) {
+    return {
+      source_text: null,
+      index: 0,
+      total: 1,
+      prev: null,
+      next: null,
+    };
+  }
+
+  const [totalRow, indexRow, prev, next] = await Promise.all([
+    db
+      .prepare(
+        'SELECT COUNT(*) AS count FROM stories WHERE IFNULL(source_text, \'\') = ?',
+      )
+      .bind(sourceText)
+      .first<{ count: number }>(),
+    db
+      .prepare(
+        'SELECT COUNT(*) AS count FROM stories WHERE IFNULL(source_text, \'\') = ? AND rowid < ?',
+      )
+      .bind(sourceText, current.rid)
+      .first<{ count: number }>(),
+    db
+      .prepare(
+        `SELECT id, title,
+                substr(content, 1, 80) AS content,
+                substr(IFNULL(translation, ''), 1, 80) AS translation,
+                summary
+         FROM stories
+         WHERE IFNULL(source_text, '') = ? AND rowid < ?
+         ORDER BY rowid DESC LIMIT 1`,
+      )
+      .bind(sourceText, current.rid)
+      .first<NeighborRow>(),
+    db
+      .prepare(
+        `SELECT id, title,
+                substr(content, 1, 80) AS content,
+                substr(IFNULL(translation, ''), 1, 80) AS translation,
+                summary
+         FROM stories
+         WHERE IFNULL(source_text, '') = ? AND rowid > ?
+         ORDER BY rowid ASC LIMIT 1`,
+      )
+      .bind(sourceText, current.rid)
+      .first<NeighborRow>(),
+  ]);
+
   return {
     source_text: sourceText,
-    index,
-    total: siblings.length,
-    prev: index > 0 ? toNeighbor(siblings[index - 1]) : null,
-    next: index < siblings.length - 1 ? toNeighbor(siblings[index + 1]) : null,
+    index: indexRow?.count ?? 0,
+    total: totalRow?.count ?? 1,
+    prev: prev ? rowToNeighbor(prev) : null,
+    next: next ? rowToNeighbor(next) : null,
   };
 }

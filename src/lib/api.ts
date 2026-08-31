@@ -5,6 +5,8 @@ export async function fetchStories(params: {
   category?: string;
   limit?: number;
   offset?: number;
+  /** 默认 true；首页翻页可关，避免每次全表统计 */
+  stats?: boolean;
 }): Promise<{
   stories: Story[];
   hasMore?: boolean;
@@ -16,6 +18,7 @@ export async function fetchStories(params: {
   if (params.category) search.set('category', params.category);
   if (params.limit) search.set('limit', String(params.limit));
   if (params.offset) search.set('offset', String(params.offset));
+  if (params.stats === false) search.set('stats', '0');
 
   const res = await fetch(`/api/stories?${search.toString()}`);
   if (!res.ok) throw new Error('加载故事失败');

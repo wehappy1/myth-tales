@@ -63,10 +63,13 @@ export default defineConfig({
               const source = url.searchParams.get('source') ?? undefined;
               const limit = Number(url.searchParams.get('limit') ?? '24');
               const offset = Number(url.searchParams.get('offset') ?? '0');
+              const wantStats = url.searchParams.get('stats') !== '0';
               const all = source
                 ? readDiskStoriesBySource(source)
                 : readAllDiskStories();
-              const stats = computeDiskStats(readAllDiskStories());
+              const stats = wantStats
+                ? computeDiskStats(readAllDiskStories())
+                : { total: 0, byCategory: [] as { category: string; count: number }[] };
               const page = paginateStories(all, { q, category, limit, offset });
               res.setHeader('Content-Type', 'application/json; charset=utf-8');
               res.end(

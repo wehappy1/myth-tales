@@ -34,6 +34,8 @@ CREATE INDEX IF NOT EXISTS idx_stories_category ON stories(category);
 CREATE INDEX IF NOT EXISTS idx_stories_tradition ON stories(tradition);
 CREATE INDEX IF NOT EXISTS idx_stories_language ON stories(language);
 CREATE INDEX IF NOT EXISTS idx_stories_source ON stories(source_id);
+CREATE INDEX IF NOT EXISTS idx_stories_source_text ON stories(source_text);
+CREATE INDEX IF NOT EXISTS idx_stories_updated ON stories(updated_at);
 
 CREATE VIRTUAL TABLE IF NOT EXISTS stories_fts USING fts5(
   title,

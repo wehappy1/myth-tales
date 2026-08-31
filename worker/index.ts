@@ -2,7 +2,6 @@
 
 import { Hono } from 'hono';
 import {
-  getStoriesBySourceFromDb,
   getStoriesFromDb,
   getStoryByIdFromDb,
   getStoryNeighborsFromDb,
@@ -10,7 +9,6 @@ import {
 } from '../src/lib/stories-db';
 import {
   isExcludedStory,
-  storyLinePreview,
   storyNeedsChineseTranslation,
 } from '../src/lib/types';
 import sources from '../data/sources.json';
@@ -77,17 +75,24 @@ app.get('/api/stories', async (c) => {
   const category = c.req.query('category') ?? undefined;
   const limit = Number(c.req.query('limit') ?? '24');
   const offset = Number(c.req.query('offset') ?? '0');
+  const wantStats = c.req.query('stats') !== '0';
 
   try {
-    const [rows, stats] = await Promise.all([
-      getStoriesFromDb(c.env.DB, {
-        q,
-        category,
-        limit: limit + 1,
-        offset,
-      }),
-      getStoryStatsFromDb(c.env.DB),
-    ]);
+    if (!c.env.DB) {
+      return c.json({ error: 'database_unavailable', message: 'DB binding missing' }, 503);
+    }
+
+    const rowsPromise = getStoriesFromDb(c.env.DB, {
+      q,
+      category,
+      limit: limit + 1,
+      offset,
+    });
+    const statsPromise = wantStats
+      ? getStoryStatsFromDb(c.env.DB)
+      : Promise.resolve({ total: 0, byCategory: [] as { category: string; count: number }[] });
+
+    const [rows, stats] = await Promise.all([rowsPromise, statsPromise]);
     const filtered = rows.filter((s) => !isExcludedStory(s));
     const hasMore = filtered.length > limit;
     const stories = filtered.slice(0, limit);
@@ -128,19 +133,24 @@ app.get('/api/book', async (c) => {
   try {
     const sourceText = c.req.query('source') ?? '';
     if (!sourceText) return c.json({ error: 'not_found' }, 404);
-    const stories = (await getStoriesBySourceFromDb(c.env.DB, sourceText)).filter(
-      (s) => !isExcludedStory(s),
-    );
-    if (stories.length === 0) return c.json({ error: 'not_found' }, 404);
+    const [first, totalRow] = await Promise.all([
+      c.env.DB.prepare(
+        `SELECT id FROM stories WHERE IFNULL(source_text, '') = ? ORDER BY rowid ASC LIMIT 1`,
+      )
+        .bind(sourceText)
+        .first<{ id: string }>(),
+      c.env.DB.prepare(
+        `SELECT COUNT(*) AS count FROM stories WHERE IFNULL(source_text, '') = ?`,
+      )
+        .bind(sourceText)
+        .first<{ count: number }>(),
+    ]);
+    if (!first) return c.json({ error: 'not_found' }, 404);
     return c.json({
       source_text: sourceText,
-      total: stories.length,
-      firstId: stories[0]?.id ?? null,
-      stories: stories.map((s) => ({
-        id: s.id,
-        title: s.title,
-        preview: storyLinePreview(s),
-      })),
+      total: totalRow?.count ?? 0,
+      firstId: first.id,
+      stories: [],
     });
   } catch (error) {
     console.error(error);
@@ -151,19 +161,24 @@ app.get('/api/book', async (c) => {
 app.get('/api/books/:sourceKey', async (c) => {
   try {
     const sourceText = decodeURIComponent(c.req.param('sourceKey'));
-    const stories = (await getStoriesBySourceFromDb(c.env.DB, sourceText)).filter(
-      (s) => !isExcludedStory(s),
-    );
-    if (stories.length === 0) return c.json({ error: 'not_found' }, 404);
+    const [first, totalRow] = await Promise.all([
+      c.env.DB.prepare(
+        `SELECT id FROM stories WHERE IFNULL(source_text, '') = ? ORDER BY rowid ASC LIMIT 1`,
+      )
+        .bind(sourceText)
+        .first<{ id: string }>(),
+      c.env.DB.prepare(
+        `SELECT COUNT(*) AS count FROM stories WHERE IFNULL(source_text, '') = ?`,
+      )
+        .bind(sourceText)
+        .first<{ count: number }>(),
+    ]);
+    if (!first) return c.json({ error: 'not_found' }, 404);
     return c.json({
       source_text: sourceText,
-      total: stories.length,
-      firstId: stories[0]?.id ?? null,
-      stories: stories.map((s) => ({
-        id: s.id,
-        title: s.title,
-        preview: storyLinePreview(s),
-      })),
+      total: totalRow?.count ?? 0,
+      firstId: first.id,
+      stories: [],
     });
   } catch (error) {
     console.error(error);

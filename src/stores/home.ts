@@ -31,7 +31,13 @@ export async function loadHomeStories(q?: string, category?: string) {
   homeStore.hasMore = true;
 
   try {
-    const data = await fetchStories({ q, category, limit: PAGE_SIZE, offset: 0 });
+    const data = await fetchStories({
+      q,
+      category,
+      limit: PAGE_SIZE,
+      offset: 0,
+      stats: false,
+    });
     homeStore.stories = data.stories;
     homeStore.hasMore = data.hasMore ?? data.stories.length >= PAGE_SIZE;
     homeStore.queryKey = key;
@@ -55,7 +61,13 @@ export async function loadMoreHomeStories(q?: string, category?: string) {
 
   try {
     const offset = homeStore.stories.length;
-    const data = await fetchStories({ q, category, limit: PAGE_SIZE, offset });
+    const data = await fetchStories({
+      q,
+      category,
+      limit: PAGE_SIZE,
+      offset,
+      stats: false,
+    });
     const existing = new Set(homeStore.stories.map((s) => s.id));
     const next = data.stories.filter((s) => !existing.has(s.id));
     homeStore.stories.push(...next);
