@@ -51,7 +51,7 @@ for (const story of stories) {
 
 const escape = (v) => (v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`);
 
-const lines = ['PRAGMA foreign_keys = OFF;', 'BEGIN TRANSACTION;'];
+const lines = ['PRAGMA foreign_keys = OFF;'];
 
 for (const s of sources) {
   lines.push(
@@ -88,7 +88,6 @@ for (const story of stories) {
   );
 }
 
-lines.push('COMMIT;');
 lines.push('PRAGMA foreign_keys = ON;');
 
 const output = lines.join('\n');

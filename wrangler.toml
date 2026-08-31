@@ -11,7 +11,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "myth-tales-db"
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "0772a3fc-13e2-4120-a7a4-270cc213bfdd"
 
 # Cloudflare 免费版 R2：10GB 存储，用于 JSON 备份与长文本归档
 # [[r2_buckets]]
