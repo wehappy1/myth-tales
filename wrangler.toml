@@ -1,0 +1,19 @@
+name = "myth-tales"
+main = "worker/index.ts"
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "dist"
+not_found_handling = "single-page-application"
+binding = "ASSETS"
+
+# Cloudflare 免费版 D1：5GB 存储，每日 500 万行读取 / 10 万行写入
+[[d1_databases]]
+binding = "DB"
+database_name = "myth-tales-db"
+database_id = "00000000-0000-0000-0000-000000000001"
+
+# Cloudflare 免费版 R2：10GB 存储，用于 JSON 备份与长文本归档
+# [[r2_buckets]]
+# binding = "STORIES"
+# bucket_name = "myth-tales-stories"

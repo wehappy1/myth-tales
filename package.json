@@ -1,0 +1,45 @@
+{
+  "name": "myth-tales",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "pnpm build && wrangler deploy",
+    "db:init": "wrangler d1 execute myth-tales-db --local --file=./schema.sql",
+    "db:seed": "node scripts/seed-local.mjs",
+    "import:books": "node scripts/import-books.mjs",
+    "import:aft": "node scripts/import-aft.mjs",
+    "import:woh": "node scripts/import-wheel-of-heaven.mjs",
+    "translate": "node scripts/translate-stories.mjs",
+    "translate:batches": "node scripts/translate-batches.mjs",
+    "translate:deepseek": "node scripts/translate-batches.mjs --provider=deepseek --concurrency=3 --pause=1",
+    "translate:zhipu": "node scripts/translate-batches.mjs --provider=zhipu --concurrency=2 --pause=3"
+  },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.0",
+    "valtio": "^2.3.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260828.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "wrangler": "^4.14.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  }
+}

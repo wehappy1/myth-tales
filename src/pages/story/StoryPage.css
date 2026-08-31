@@ -1,0 +1,248 @@
+.story {
+  width: 100%;
+  padding: 1.25rem 0 4rem;
+}
+
+.story-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.back {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--muted);
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.meta em {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.meta-book {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.meta-book:hover {
+  color: var(--accent);
+  border-bottom-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.meta-book-current {
+  color: var(--accent);
+}
+
+.content p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  margin: 0 0 1.25rem;
+  text-indent: 2em;
+}
+
+.translation {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.translation-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.translation h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.translation-edit {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.translation-edit:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.translation p {
+  font-size: 1.02rem;
+  line-height: 1.85;
+  margin: 0 0 1.15rem;
+  color: color-mix(in srgb, var(--text) 88%, var(--muted));
+}
+
+.translation-status {
+  color: var(--muted);
+  text-indent: 0 !important;
+  margin: 0;
+}
+
+.translation-status.error {
+  color: #c97a6a;
+}
+
+.translation-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.translation-actions button {
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font: inherit;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.translation-actions button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.translation-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-indent: 0 !important;
+}
+
+.translation-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.translation-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 55%);
+}
+
+.translation-modal-panel {
+  position: relative;
+  width: min(40rem, 100%);
+  max-height: min(85vh, 44rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+}
+
+.translation-modal-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.translation-modal-panel header strong {
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.translation-modal-panel header button {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem;
+}
+
+.translation-modal-panel textarea {
+  flex: 1;
+  min-height: 16rem;
+  resize: vertical;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.7;
+}
+
+.translation-modal-panel footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.translation-modal-panel footer button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.translation-modal-panel footer button.ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.translation-modal-panel footer button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}

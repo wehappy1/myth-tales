@@ -1,0 +1,12 @@
+node_modules
+dist
+.wrangler
+.dev.vars
+seed-data.sql
+.DS_Store
+*.log
+
+# 本地环境变量（勿提交）
+.env
+.env.*
+!.env.example

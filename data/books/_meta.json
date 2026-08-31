@@ -1,0 +1,57 @@
+{
+  "defaults": {
+    "tradition": "chinese",
+    "language": "zh",
+    "source_id": "chinese-ancient-text",
+    "license": "Public Domain",
+    "region": "华夏"
+  },
+  "books": {
+    "搜神记": {
+      "category": "creature",
+      "tags": "志怪,搜神记"
+    },
+    "山海经": {
+      "category": "myth",
+      "tags": "神话,山海经"
+    },
+    "淮南子": {
+      "category": "myth",
+      "tags": "神话,淮南子"
+    },
+    "列子": {
+      "category": "fable",
+      "tags": "寓言,列子"
+    },
+    "吕氏春秋": {
+      "category": "legend",
+      "tags": "传说,吕氏春秋"
+    },
+    "世说新语": {
+      "category": "legend",
+      "tags": "轶事,世说新语"
+    },
+    "笑林广记": {
+      "category": "folktale",
+      "tags": "民间,笑话"
+    },
+    "梦溪笔谈": {
+      "category": "creature",
+      "tags": "志怪,梦溪笔谈"
+    },
+    "聊斋志异": {
+      "category": "creature",
+      "tags": "志怪,聊斋",
+      "source_id": "liaozhai-zhiyi",
+      "license": "CC BY-SA 4.0"
+    },
+    "史记": {
+      "category": "legend",
+      "tags": "史书,神话传说"
+    },
+    "汉书": {
+      "category": "legend",
+      "tags": "史书,神话传说"
+    }
+  }
+}

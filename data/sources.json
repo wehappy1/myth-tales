@@ -1,0 +1,134 @@
+[
+  {
+    "id": "chinese-ancient-text",
+    "name": "chinese-ancient-text",
+    "url": "https://github.com/hanzhaodeng/chinese-ancient-text",
+    "license": "Public Domain",
+    "language": "zh",
+    "description": "古籍 JSON：搜神记、山海经、淮南子等约 60 部",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "放入 data/books/ 后执行 pnpm import:books"
+  },
+  {
+    "id": "liaozhai-zhiyi",
+    "name": "CoolSpring/liaozhai-zhiyi",
+    "url": "https://huggingface.co/datasets/CoolSpring/liaozhai-zhiyi",
+    "license": "CC BY-SA 4.0",
+    "language": "zh",
+    "description": "聊斋志异 493 篇结构化故事，源自维基文库",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "Parquet 需先转为 data/books/聊斋志异.json"
+  },
+  {
+    "id": "wheel-of-heaven",
+    "name": "Wheel of Heaven Myth Index",
+    "url": "https://www.wheelofheaven.world/datasets/myth-index/",
+    "license": "CC0-1.0",
+    "language": "en",
+    "description": "跨文化神话母题索引：洪水、神议会、神战等，含 Thompson 母题编号与原文链接",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "JSON API: https://api.wheelofheaven.world/v1/datasets/myth-index.json"
+  },
+  {
+    "id": "ashliman-folktexts",
+    "name": "Ashliman Folktexts (Bag-of-Tales)",
+    "url": "https://doi.org/10.5281/zenodo.6575263",
+    "license": "CC BY-SA 4.0",
+    "language": "en",
+    "description": "1518 篇 ATU 标注民间故事语料，适合机器学习与比较民俗学",
+    "type": "academic",
+    "usable": "import",
+    "notes": "Zenodo + GitHub trilogy 项目"
+  },
+  {
+    "id": "cbaigui",
+    "name": "纪妖（知妖）",
+    "url": "https://www.cbaigui.com/",
+    "license": "需查阅网站条款",
+    "language": "zh",
+    "description": "3200+ 中国妖怪词条，含古籍出处、地域、标签，社区驱动",
+    "type": "website",
+    "usable": "manual",
+    "notes": "非完全开源；商用需确认授权；可人工整理或申请合作"
+  },
+  {
+    "id": "wikisource-zh",
+    "name": "维基文库（中文）",
+    "url": "https://zh.wikisource.org/",
+    "license": "Public Domain / CC",
+    "language": "zh",
+    "description": "山海经、淮南子、搜神记等古籍原文，公有领域为主",
+    "type": "website",
+    "usable": "import",
+    "notes": "MediaWiki API 可批量获取"
+  },
+  {
+    "id": "sacred-texts",
+    "name": "Sacred Texts Archive",
+    "url": "https://sacred-texts.com/",
+    "license": "Public Domain",
+    "language": "en",
+    "description": "全球宗教与神话文献数字化档案",
+    "type": "website",
+    "usable": "import",
+    "notes": "需遵守站点使用政策"
+  },
+  {
+    "id": "greek-mythology-data",
+    "name": "greek-mythology-data",
+    "url": "https://github.com/kamiranoff/greek-mythology-data",
+    "license": "MIT",
+    "language": "en",
+    "description": "希腊神话人物结构化 JSON，含名称、类别、描述",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "npm: greek-mythology-data"
+  },
+  {
+    "id": "deitydb",
+    "name": "DeityDB",
+    "url": "https://github.com/jebboone/deitydb",
+    "license": "MIT",
+    "language": "en",
+    "description": "137 个传统的 4000+ 神祇实体比较数据库",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "PostgreSQL schema + seed data"
+  },
+  {
+    "id": "chinese-motifs",
+    "name": "中国神话人物叙事母题数据集",
+    "url": "https://doi.org/10.57760/sciencedb.11594",
+    "license": "学术数据许可",
+    "language": "zh",
+    "description": "50 个神话人物、10264 条母题数据，含民族与文献来源",
+    "type": "academic",
+    "usable": "import",
+    "notes": "ScienceDB 下载"
+  },
+  {
+    "id": "tianapi-story",
+    "name": "天聚数行 · 故事大全 API",
+    "url": "https://www.tianapi.com/apiview/113",
+    "license": "商业 API",
+    "language": "zh",
+    "description": "成语、童话、寓言、睡前、民间故事 API",
+    "type": "api",
+    "usable": "direct",
+    "notes": "免费会员每日 100 次；不适合作为永久存储源"
+  },
+  {
+    "id": "blackmyth-lore",
+    "name": "blackmyth-lore-data",
+    "url": "https://www.npmjs.com/package/blackmyth-lore-data",
+    "license": "MIT",
+    "language": "multi",
+    "description": "11 语言神话概念图谱，153 个规范节点",
+    "type": "dataset",
+    "usable": "import",
+    "notes": "偏游戏 lore，非完整故事文本"
+  }
+]
