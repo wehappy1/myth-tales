@@ -1,5 +1,5 @@
 /**
- * 本地磁盘故事库（Vite API 用）：主库 + 用户新增，运行时读取，无需重启即可看到新故事
+ * 本地磁盘故事库（开发 API 用）：主库 + 用户新增，运行时读取，无需重启即可看到新故事
  */
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';

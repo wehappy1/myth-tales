@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { StoryReader } from '../../components/StoryReader';
-import { fetchBook, fetchStoryWithNeighbors } from '../../lib/api';
+import { StoryReader } from '@/components/StoryReader';
+import { fetchBook, fetchStoryWithNeighbors } from '@/lib/api';
 import {
   bookPath,
   decodeBookKey,
   type Story,
   type StoryNeighbors,
-} from '../../lib/types';
-import '../story/StoryPage.css';
-import './BookPage.css';
+} from '@/lib/types';
+import { history, useParams } from '@umijs/max';
+import { useEffect, useState } from 'react';
+import '../../story/StoryPage.css';
+import '../BookPage.css';
 
-export function BookPage() {
+export default function BookPage() {
   const { sourceKey = '', storyId } = useParams();
-  const navigate = useNavigate();
   const sourceText = decodeBookKey(sourceKey);
   const [story, setStory] = useState<Story | null>(null);
   const [neighbors, setNeighbors] = useState<StoryNeighbors | null>(null);
@@ -21,7 +20,7 @@ export function BookPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [sourceKey, storyId]);
 
   useEffect(() => {
@@ -35,10 +34,10 @@ export function BookPage() {
           const book = await fetchBook(sourceText);
           if (cancelled) return;
           if (!book.firstId) {
-            navigate('/', { replace: true });
+            history.replace('/');
             return;
           }
-          navigate(bookPath(sourceText, book.firstId), { replace: true });
+          history.replace(bookPath(sourceText, book.firstId));
           return;
         }
 
@@ -46,11 +45,11 @@ export function BookPage() {
           await fetchStoryWithNeighbors(storyId);
         if (cancelled) return;
         if (!data) {
-          navigate('/', { replace: true });
+          history.replace('/');
           return;
         }
         if (data.source_text && data.source_text !== sourceText) {
-          navigate(bookPath(data.source_text, data.id), { replace: true });
+          history.replace(bookPath(data.source_text, data.id));
           return;
         }
         setStory(data);
@@ -69,14 +68,14 @@ export function BookPage() {
       cancelled = true;
       document.title = '故事';
     };
-  }, [sourceKey, sourceText, storyId, navigate]);
+  }, [sourceKey, sourceText, storyId]);
 
   function goBack() {
     if (window.history.length > 1) {
-      navigate(-1);
+      history.back();
       return;
     }
-    navigate('/');
+    history.push('/');
   }
 
   if (loading || (!storyId && !error)) {

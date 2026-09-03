@@ -2,7 +2,7 @@
 
 汇集中外神话、志怪与民间故事的数字图书馆。
 
-- 前端：**React + Vite + React Router**
+- 前端：**Umi Max + React**（`umi-plugin-keep-alive` 缓存首页）
 - API：**Hono**（Cloudflare Workers）
 - 数据：**Cloudflare D1**（主库）+ 本地 JSON（开发回退）
 
@@ -15,7 +15,9 @@ pnpm import:books   # 若 data/books/ 有书籍
 pnpm dev            # http://localhost:4321
 ```
 
-本地开发通过 Vite 中间件提供 `/api/*`，直接读 `data/imported/stories.json`，无需 Cloudflare 账号。
+本地开发通过 Umi 中间件提供 `/api/*`，直接读 `data/imported/stories.json`，无需 Cloudflare 账号。
+
+首页默认展示「志怪」，URL 不带 `?category=creature`。从详情返回首页走 KeepAlive，不重新拉列表。
 
 ## Cloudflare 免费版
 
@@ -53,7 +55,12 @@ pnpm import:books
 
 ```
 myth-tales/
-├── src/                 # React 前端
+├── src/                 # Umi 前端（约定式路由）
+│   ├── pages/           # 页面
+│   ├── layouts/         # 全局布局
+│   ├── store/           # valtio store（@umijs/max）
+│   └── components/
+├── plugin/              # 本地 /api 中间件
 ├── worker/              # Hono API（生产环境读 D1）
 ├── data/books/          # 放入古籍 JSON
 ├── data/imported/       # import:books 输出

@@ -41,6 +41,22 @@ export const CATEGORIES: Record<string, string> = {
 
 export const DEFAULT_HOME_CATEGORY = 'creature';
 
+export function resolveHomeCategory(raw?: string | null) {
+  return raw || DEFAULT_HOME_CATEGORY;
+}
+
+/** 默认志怪不写进 URL */
+export function homePath(q?: string, category?: string) {
+  const next = new URLSearchParams();
+  const query = q?.trim();
+  if (query) next.set('q', query);
+  if (category && category !== DEFAULT_HOME_CATEGORY) {
+    next.set('category', category);
+  }
+  const search = next.toString();
+  return search ? `/?${search}` : '/';
+}
+
 export const TRADITIONS: Record<string, string> = {
   chinese: '中国',
   greek: '希腊',

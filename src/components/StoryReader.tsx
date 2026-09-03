@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@umijs/max';
 import { saveStoryTranslation } from '../lib/api';
 import {
   bookPath,

@@ -1,20 +1,19 @@
+import { StoryReader } from '@/components/StoryReader';
+import { fetchStoryWithNeighbors } from '@/lib/api';
+import type { Story, StoryNeighbors } from '@/lib/types';
+import { history, useParams } from '@umijs/max';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { StoryReader } from '../../components/StoryReader';
-import { fetchStoryWithNeighbors } from '../../lib/api';
-import type { Story, StoryNeighbors } from '../../lib/types';
 import './StoryPage.css';
 
-export function StoryPage() {
+export default function StoryPage() {
   const { id = '' } = useParams();
-  const navigate = useNavigate();
   const [story, setStory] = useState<Story | null>(null);
   const [neighbors, setNeighbors] = useState<StoryNeighbors | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [id]);
 
   useEffect(() => {
@@ -26,7 +25,7 @@ export function StoryPage() {
       .then(({ story: data, neighbors: nextNeighbors }) => {
         if (cancelled) return;
         if (!data) {
-          navigate('/', { replace: true });
+          history.replace('/');
           return;
         }
         setStory(data);
@@ -45,14 +44,14 @@ export function StoryPage() {
       cancelled = true;
       document.title = '故事';
     };
-  }, [id, navigate]);
+  }, [id]);
 
   function goBack() {
     if (window.history.length > 1) {
-      navigate(-1);
+      history.back();
       return;
     }
-    navigate('/');
+    history.push('/');
   }
 
   if (loading) return <p className="page-loading">加载中…</p>;

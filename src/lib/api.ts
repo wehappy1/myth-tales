@@ -34,24 +34,39 @@ export async function fetchStory(id: string): Promise<Story | null> {
   return data.story;
 }
 
+const storyInflight = new Map<
+  string,
+  Promise<{ story: Story | null; neighbors: StoryNeighbors | null }>
+>();
+
 /** 一次拉齐故事与同书相邻则；优先走详情接口里附带的 neighbors */
-export async function fetchStoryWithNeighbors(id: string): Promise<{
+export function fetchStoryWithNeighbors(id: string): Promise<{
   story: Story | null;
   neighbors: StoryNeighbors | null;
 }> {
-  const res = await fetch(`/api/stories/${encodeURIComponent(id)}`);
-  if (res.status === 404) return { story: null, neighbors: null };
-  if (!res.ok) throw new Error('加载故事失败');
-  await assertJson(res, '加载故事失败，请重启本地开发服务（pnpm dev）后重试');
-  const data = (await res.json()) as {
-    story: Story;
-    neighbors?: StoryNeighbors | null;
-  };
-  let neighbors = data.neighbors ?? null;
-  if (!neighbors) {
-    neighbors = await fetchStoryNeighbors(id);
-  }
-  return { story: data.story, neighbors };
+  const hit = storyInflight.get(id);
+  if (hit) return hit;
+
+  const request = (async () => {
+    const res = await fetch(`/api/stories/${encodeURIComponent(id)}`);
+    if (res.status === 404) return { story: null, neighbors: null };
+    if (!res.ok) throw new Error('加载故事失败');
+    await assertJson(res, '加载故事失败，请重启本地开发服务（pnpm dev）后重试');
+    const data = (await res.json()) as {
+      story: Story;
+      neighbors?: StoryNeighbors | null;
+    };
+    let neighbors = data.neighbors ?? null;
+    if (!neighbors) {
+      neighbors = await fetchStoryNeighbors(id);
+    }
+    return { story: data.story, neighbors };
+  })().finally(() => {
+    storyInflight.delete(id);
+  });
+
+  storyInflight.set(id, request);
+  return request;
 }
 
 export async function fetchStoryNeighbors(id: string): Promise<StoryNeighbors | null> {

@@ -1,51 +1,45 @@
-import { useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { useSnapshot } from 'valtio/react';
+import { WithKeepAlive } from '@/components';
+import { Paths } from '@/constants';
 import {
   bookPath,
   formatCategory,
   formatTradition,
+  resolveHomeCategory,
   storyCardDescription,
-} from '../../lib/types';
+} from '@/lib/types';
+import { homeStore, loadHomeStories, loadMoreHomeStories } from '@/store';
 import {
-  homeStore,
-  loadHomeStories,
-  loadMoreHomeStories,
-} from '../../stores/home';
-import './HomePage.css';
+  Link,
+  useActivate,
+  useLocation,
+  useSearchParams,
+  useSnapshot,
+} from '@umijs/max';
+import { useEffect, useRef } from 'react';
+import './index.css';
 
-export function HomePage({ active = true }: { active?: boolean }) {
+function IndexPage() {
   const [searchParams] = useSearchParams();
-  const q = searchParams.get('q') ?? undefined;
-  const category = searchParams.get('category') ?? undefined;
+  const location = useLocation();
+  const onHome = location.pathname === Paths.INDEX;
   const snap = useSnapshot(homeStore);
+  const q = onHome ? (searchParams.get('q') ?? undefined) : snap.q;
+  const category = onHome
+    ? resolveHomeCategory(searchParams.get('category'))
+    : snap.category;
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    void loadHomeStories(q, category);
-  }, [q, category]);
-
-  useEffect(() => {
-    if (!active) return;
+  useActivate(() => {
     document.title = '故事';
-    const y = homeStore.scrollY;
-    const id = requestAnimationFrame(() => {
-      window.scrollTo(0, y);
-    });
-    return () => cancelAnimationFrame(id);
-  }, [active]);
+  });
 
   useEffect(() => {
-    if (!active) return;
-    const onScroll = () => {
-      homeStore.scrollY = window.scrollY;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [active]);
+    if (!onHome) return;
+    void loadHomeStories(q, category);
+  }, [onHome, q, category]);
 
   useEffect(() => {
-    if (!active) return;
+    if (!onHome) return;
     const node = sentinelRef.current;
     if (!node) return;
 
@@ -59,7 +53,7 @@ export function HomePage({ active = true }: { active?: boolean }) {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [active, q, category, snap.hasMore, snap.stories.length]);
+  }, [onHome, q, category, snap.hasMore, snap.stories.length]);
 
   if (snap.loading && snap.stories.length === 0) {
     return <p className="page-loading">加载中…</p>;
@@ -79,9 +73,6 @@ export function HomePage({ active = true }: { active?: boolean }) {
               <Link
                 to={`/story/${encodeURIComponent(story.id)}`}
                 className="card-main"
-                onClick={() => {
-                  homeStore.scrollY = window.scrollY;
-                }}
               >
                 <h2>{story.title}</h2>
                 <p>{storyCardDescription(story)}</p>
@@ -93,9 +84,6 @@ export function HomePage({ active = true }: { active?: boolean }) {
                   <Link
                     to={bookPath(story.source_text, story.id)}
                     className="card-book"
-                    onClick={() => {
-                      homeStore.scrollY = window.scrollY;
-                    }}
                   >
                     {story.source_text}
                   </Link>
@@ -113,3 +101,5 @@ export function HomePage({ active = true }: { active?: boolean }) {
     </section>
   );
 }
+
+export default WithKeepAlive(IndexPage, { name: Paths.INDEX });

@@ -1,15 +1,13 @@
+import { CATEGORIES, DEFAULT_HOME_CATEGORY } from '@/lib/types';
+import { createStory } from '@/lib/api';
+import { bumpCatalog, resetHomeStories } from '@/store';
+import { history, Link } from '@umijs/max';
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { createStory } from '../../lib/api';
-import { CATEGORIES, DEFAULT_HOME_CATEGORY } from '../../lib/types';
-import { bumpCatalog } from '../../stores/catalog';
-import { homeStore } from '../../stores/home';
 import './NewStoryPage.css';
 
 const OPTIONS = Object.entries(CATEGORIES).filter(([key]) => key !== 'motif');
 
-export function NewStoryPage() {
-  const navigate = useNavigate();
+export default function NewStoryPage() {
   const [category, setCategory] = useState(DEFAULT_HOME_CATEGORY);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -38,9 +36,8 @@ export function NewStoryPage() {
         title: title.trim() || undefined,
       });
       bumpCatalog();
-      homeStore.queryKey = '';
-      homeStore.stories = [];
-      navigate(`/story/${story.id}`);
+      resetHomeStories();
+      history.push(`/story/${story.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存失败');
     } finally {
@@ -51,7 +48,7 @@ export function NewStoryPage() {
   return (
     <section className="new-story">
       <header className="new-story-head">
-        <Link to={`/?category=${DEFAULT_HOME_CATEGORY}`} className="back">
+        <Link to="/" className="back">
           ← 返回
         </Link>
         <h1>新增故事</h1>

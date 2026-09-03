@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.15.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "PORT=4321 max dev",
+    "build": "max build",
+    "preview": "max preview",
+    "setup": "max setup",
+    "postinstall": "max setup",
     "deploy": "pnpm build && wrangler deploy",
     "db:init": "wrangler d1 execute myth-tales-db --local --file=./schema.sql",
     "db:seed": "node scripts/seed-local.mjs",
@@ -20,19 +21,19 @@
     "translate:zhipu": "node scripts/translate-batches.mjs --provider=zhipu --concurrency=2 --pause=3"
   },
   "dependencies": {
+    "@umijs/max": "4.2.3",
     "hono": "^4.7.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.0",
-    "valtio": "^2.3.2"
+    "react": "18.3.0",
+    "react-activation": "^0.12.4",
+    "react-dom": "18.3.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260828.1",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "typescript": "^5.7.0",
-    "vite": "^6.0.0",
+    "umi-plugin-keep-alive": "0.0.1-beta.35",
     "wrangler": "^4.14.0"
   },
   "pnpm": {

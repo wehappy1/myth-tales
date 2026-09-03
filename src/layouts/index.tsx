@@ -1,9 +1,21 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { useSnapshot } from 'valtio/react';
-import { fetchStories } from '../lib/api';
-import { DEFAULT_HOME_CATEGORY, formatCategory } from '../lib/types';
-import { catalogStore } from '../stores/catalog';
+import { Paths } from '@/constants';
+import { fetchStories } from '@/lib/api';
+import {
+  DEFAULT_HOME_CATEGORY,
+  formatCategory,
+  homePath,
+  resolveHomeCategory,
+} from '@/lib/types';
+import { catalogStore, homeStore } from '@/store';
+import {
+  history,
+  Link,
+  Outlet,
+  useLocation,
+  useSearchParams,
+  useSnapshot,
+} from '@umijs/max';
+import { useEffect, useState, type FormEvent } from 'react';
 
 type CategoryStat = { category: string; count: number };
 
@@ -20,30 +32,24 @@ function CategoryIcon() {
   );
 }
 
-export function Layout({ children }: { children: ReactNode }) {
-  const navigate = useNavigate();
+export default function Layouts() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const catalog = useSnapshot(catalogStore);
-  const q = searchParams.get('q') ?? '';
-  const category = searchParams.get('category') ?? undefined;
+  const home = useSnapshot(homeStore);
+  const onHome = location.pathname === Paths.INDEX;
+  const q = onHome ? (searchParams.get('q') ?? '') : (home.q ?? '');
+  const category = onHome
+    ? resolveHomeCategory(searchParams.get('category'))
+    : home.category;
   const [draft, setDraft] = useState(q);
   const [categories, setCategories] = useState<CategoryStat[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    setDraft(q);
-  }, [q]);
-
-  useEffect(() => {
-    // 首页无分类参数时，默认进入志怪
-    if (
-      window.location.pathname === '/' &&
-      !searchParams.has('category') &&
-      !searchParams.has('q')
-    ) {
-      navigate(`/?category=${DEFAULT_HOME_CATEGORY}`, { replace: true });
-    }
-  }, [navigate, searchParams]);
+    if (!onHome) return;
+    setDraft(searchParams.get('q') ?? '');
+  }, [onHome, searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,23 +75,20 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [drawerOpen]);
 
   function goHome(nextQ?: string, nextCategory?: string, replace = false) {
-    const next = new URLSearchParams();
-    const value = (nextQ ?? draft).trim();
-    if (value) next.set('q', value);
-    if (nextCategory) next.set('category', nextCategory);
-    navigate(
-      { pathname: '/', search: next.toString() ? `?${next}` : '' },
-      { replace },
-    );
+    const href = homePath(nextQ ?? draft, nextCategory);
+    if (replace) {
+      history.replace(href);
+      return;
+    }
+    history.push(href);
   }
 
   function onSearch(event: FormEvent) {
     event.preventDefault();
-    goHome(draft, category ?? DEFAULT_HOME_CATEGORY);
+    goHome(draft, category);
   }
 
   function onCategory(cat: string) {
-    // 再次点击当前分类回到默认志怪，而不是「全部分类」
     goHome(q, category === cat ? DEFAULT_HOME_CATEGORY : cat, true);
     setDrawerOpen(false);
   }
@@ -108,7 +111,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="site-header sticky-header">
         <div className="header-bar">
           <Link
-            to={`/?category=${DEFAULT_HOME_CATEGORY}`}
+            to={Paths.INDEX}
             className="logo"
             onClick={() => setDraft('')}
           >
@@ -130,13 +133,11 @@ export function Layout({ children }: { children: ReactNode }) {
             {categoryButtons}
           </nav>
 
-          {/* <Link to="/new" className="header-new" aria-label="新增故事">
-            新增
-          </Link> */}
-
           <button
             type="button"
-            className={`category-trigger mobile-only${category ? ' has-filter' : ''}`}
+            className={`category-trigger mobile-only${
+              category !== DEFAULT_HOME_CATEGORY ? ' has-filter' : ''
+            }`}
             aria-label="打开分类"
             aria-expanded={drawerOpen}
             onClick={() => setDrawerOpen(true)}
@@ -165,7 +166,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <nav className="category-drawer-list">
           {categoryButtons}
           <Link
-            to="/new"
+            to={Paths.NEW}
             className="category-drawer-new"
             onClick={() => setDrawerOpen(false)}
           >
@@ -174,7 +175,9 @@ export function Layout({ children }: { children: ReactNode }) {
         </nav>
       </aside>
 
-      <main className="container">{children}</main>
+      <main className="container">
+        <Outlet />
+      </main>
     </>
   );
 }
