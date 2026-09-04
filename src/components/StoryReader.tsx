@@ -8,6 +8,7 @@ import {
   type Story,
   type StoryNeighbors,
 } from '../lib/types';
+import { useSpeech, type SpeechTarget } from '../hooks/useSpeech';
 import { StoryNeighborNav } from './StoryNeighborNav';
 import '../pages/story/StoryPage.css';
 
@@ -28,6 +29,38 @@ function translationLabel(language?: string | null) {
 
 function splitParagraphs(text: string) {
   return text.split(/\n\n+/).filter(Boolean);
+}
+
+function SpeakButton({
+  target,
+  speaking,
+  supported,
+  disabled,
+  onToggle,
+}: {
+  target: SpeechTarget;
+  speaking: SpeechTarget | null;
+  supported: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+}) {
+  if (!supported) return null;
+  const active = speaking === target;
+  return (
+    <button
+      type="button"
+      className={`speak-btn${active ? ' is-active' : ''}`}
+      onClick={onToggle}
+      disabled={disabled}
+      aria-pressed={active}
+      aria-label={active ? '停止朗读' : '朗读'}
+    >
+      <span className="speak-btn-icon" aria-hidden>
+        {active ? '■' : '▷'}
+      </span>
+      {active ? '停止' : '朗读'}
+    </button>
+  );
 }
 
 type Props = {
@@ -53,12 +86,14 @@ export function StoryReader({
   const [draft, setDraft] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const { supported, speaking, speak, cancel } = useSpeech();
 
   useEffect(() => {
     setTranslation(story.translation?.trim() || null);
     setEditorOpen(false);
     setSaveError(null);
-  }, [story.id, story.translation]);
+    cancel();
+  }, [story.id, story.translation, cancel]);
 
   useEffect(() => {
     if (!editorOpen) return;
@@ -70,6 +105,7 @@ export function StoryReader({
   }, [editorOpen]);
 
   function openEditor() {
+    cancel();
     setDraft(translation ?? '');
     setSaveError(null);
     setEditorOpen(true);
@@ -143,6 +179,17 @@ export function StoryReader({
         </p>
       </header>
 
+      <div className="content-head">
+        <h2 className="section-label">原文</h2>
+        <SpeakButton
+          target="content"
+          speaking={speaking}
+          supported={supported}
+          disabled={!story.content.trim()}
+          onToggle={() => speak('content', story.content, story.language)}
+        />
+      </div>
+
       <div className="content">
         {splitParagraphs(story.content).map((para, index) => (
           <p key={index}>{para}</p>
@@ -152,9 +199,16 @@ export function StoryReader({
       <section className="translation">
         <div className="translation-head">
           <h2>{label}</h2>
-          <button type="button" className="translation-edit" onClick={openEditor}>
-            {translation ? '编辑译文' : '填写译文'}
-          </button>
+          <SpeakButton
+            target="translation"
+            speaking={speaking}
+            supported={supported}
+            disabled={!translation}
+            onToggle={() => {
+              if (!translation) return;
+              speak('translation', translation, 'zh-CN');
+            }}
+          />
         </div>
 
         {translation ? (
@@ -162,7 +216,7 @@ export function StoryReader({
             <p key={index}>{para}</p>
           ))
         ) : (
-          <p className="translation-hint">暂无译文，点击右上角填写。</p>
+          <p className="translation-hint">暂无译文，可在页面底部填写。</p>
         )}
       </section>
 
@@ -171,6 +225,12 @@ export function StoryReader({
         next={neighbors?.next ?? null}
         hrefFor={hrefFor}
       />
+
+      <footer className="story-foot">
+        <button type="button" className="story-edit-quiet" onClick={openEditor}>
+          {translation ? '编辑译文' : '填写译文'}
+        </button>
+      </footer>
 
       {editorOpen && (
         <div

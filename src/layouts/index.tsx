@@ -6,7 +6,7 @@ import {
   homePath,
   resolveHomeCategory,
 } from '@/lib/types';
-import { catalogStore, homeStore } from '@/store';
+import { catalogStore, homeStore, loadHomeStories } from '@/store';
 import {
   history,
   Link,
@@ -50,6 +50,12 @@ export default function Layouts() {
     if (!onHome) return;
     setDraft(searchParams.get('q') ?? '');
   }, [onHome, searchParams]);
+
+  // 列表请求放在 layout：KeepAlive 缓存首页后，页内 searchParams 可能不刷新
+  useEffect(() => {
+    if (!onHome) return;
+    void loadHomeStories(q || undefined, category);
+  }, [onHome, q, category]);
 
   useEffect(() => {
     let cancelled = false;

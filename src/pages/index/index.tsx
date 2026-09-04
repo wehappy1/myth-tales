@@ -4,29 +4,15 @@ import {
   bookPath,
   formatCategory,
   formatTradition,
-  resolveHomeCategory,
   storyCardDescription,
 } from '@/lib/types';
-import { homeStore, loadHomeStories, loadMoreHomeStories } from '@/store';
-import {
-  Link,
-  useActivate,
-  useLocation,
-  useSearchParams,
-  useSnapshot,
-} from '@umijs/max';
+import { homeStore, loadMoreHomeStories } from '@/store';
+import { Link, useActivate, useSnapshot } from '@umijs/max';
 import { useEffect, useRef } from 'react';
 import './index.css';
 
 function IndexPage() {
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const onHome = location.pathname === Paths.INDEX;
   const snap = useSnapshot(homeStore);
-  const q = onHome ? (searchParams.get('q') ?? undefined) : snap.q;
-  const category = onHome
-    ? resolveHomeCategory(searchParams.get('category'))
-    : snap.category;
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useActivate(() => {
@@ -34,26 +20,21 @@ function IndexPage() {
   });
 
   useEffect(() => {
-    if (!onHome) return;
-    void loadHomeStories(q, category);
-  }, [onHome, q, category]);
-
-  useEffect(() => {
-    if (!onHome) return;
     const node = sentinelRef.current;
     if (!node) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          void loadMoreHomeStories(q, category);
+          // 用 store 里已确认加载成功的查询条件，避免 KeepAlive 下 URL hook 过期
+          void loadMoreHomeStories(homeStore.q, homeStore.category);
         }
       },
       { rootMargin: '240px 0px' },
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [onHome, q, category, snap.hasMore, snap.stories.length]);
+  }, [snap.hasMore, snap.stories.length, snap.queryKey]);
 
   if (snap.loading && snap.stories.length === 0) {
     return <p className="page-loading">加载中…</p>;

@@ -63,6 +63,81 @@
   color: var(--accent);
 }
 
+.content-head,
+.translation-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.content-head {
+  margin-bottom: 1rem;
+}
+
+.section-label,
+.translation h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.speak-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.speak-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.speak-btn.is-active {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  animation: speak-pulse 1.6s ease-in-out infinite;
+}
+
+.speak-btn-icon {
+  font-size: 0.7rem;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+@keyframes speak-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
 .content p {
   font-size: 1.05rem;
   line-height: 1.85;
@@ -76,37 +151,30 @@
   border-top: 1px solid var(--border);
 }
 
-.translation-head {
+.story-foot {
+  margin-top: 2.75rem;
+  padding-top: 1.25rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+  justify-content: center;
 }
 
-.translation h2 {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-  margin: 0;
-}
-
-.translation-edit {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
+.story-edit-quiet {
+  border: none;
+  background: none;
+  padding: 0.25rem 0.5rem;
   font: inherit;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  letter-spacing: 0.04em;
   cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, var(--muted) 35%, transparent);
 }
 
-.translation-edit:hover {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+.story-edit-quiet:hover {
+  color: var(--muted);
+  text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent);
 }
 
 .translation p {
