@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=20 <24"
+  },
   "scripts": {
     "dev": "PORT=4321 max dev",
     "build": "max build",
