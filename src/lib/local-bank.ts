@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { Story, StoryNeighbor, StoryNeighbors } from './types';
 import { isExcludedStory, storyLinePreview } from './types';
+import { computeStats } from './stories-db';
 
 const root = process.cwd();
 const storiesPath = join(root, 'data/imported/stories.json');
@@ -68,16 +69,7 @@ export function readDiskStoryNeighbors(id: string): StoryNeighbors | null {
 }
 
 export function computeDiskStats(stories: Story[]) {
-  const counts = stories.reduce<Record<string, number>>((acc, story) => {
-    acc[story.category] = (acc[story.category] ?? 0) + 1;
-    return acc;
-  }, {});
-  return {
-    total: stories.length,
-    byCategory: Object.entries(counts)
-      .map(([category, count]) => ({ category, count }))
-      .sort((a, b) => b.count - a.count),
-  };
+  return computeStats(stories);
 }
 
 function makeSummary(content: string) {

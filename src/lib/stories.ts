@@ -1,5 +1,5 @@
 import type { Story } from './types';
-import { isExcludedStory } from './types';
+import { isExcludedStory, storyMatchesCategory } from './types';
 import seedStories from '../../data/seed/stories.json';
 import importedStories from '../../data/imported/stories.json';
 import translationsMap from '../../data/imported/translations.json';
@@ -85,7 +85,7 @@ export function paginateStories(
   // 先按条件过滤但不截断，再 slice，才能判断 hasMore
   const { category, q } = options;
   let result = stories;
-  if (category) result = result.filter((s) => s.category === category);
+  if (category) result = result.filter((s) => storyMatchesCategory(s, category));
   if (q) {
     const needle = q.toLowerCase();
     result = result.filter(

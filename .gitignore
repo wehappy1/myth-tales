@@ -3,6 +3,8 @@ dist
 .wrangler
 .dev.vars
 seed-data.sql
+seed-english.sql
+tmp/
 .DS_Store
 *.log
 

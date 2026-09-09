@@ -39,10 +39,30 @@ export const CATEGORIES: Record<string, string> = {
   motif: '母题索引',
 };
 
+/** 导航用的「英语」分类：按语言聚合，不依赖 category 字段 */
+export const ENGLISH_CATEGORY = 'english';
+
 export const DEFAULT_HOME_CATEGORY = 'creature';
 
 export function resolveHomeCategory(raw?: string | null) {
   return raw || DEFAULT_HOME_CATEGORY;
+}
+
+export function isEnglishStory(
+  story: Pick<Story, 'category' | 'language'>,
+): boolean {
+  if (story.category === ENGLISH_CATEGORY) return true;
+  const lang = (story.language ?? '').toLowerCase();
+  return lang === 'en' || lang.startsWith('en-');
+}
+
+export function storyMatchesCategory(
+  story: Pick<Story, 'category' | 'language'>,
+  category?: string | null,
+): boolean {
+  if (!category) return true;
+  if (category === ENGLISH_CATEGORY) return isEnglishStory(story);
+  return story.category === category;
 }
 
 /** 默认志怪不写进 URL */

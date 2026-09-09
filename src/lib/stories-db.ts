@@ -1,5 +1,10 @@
 import type { Story, StoryNeighbor, StoryNeighbors } from './types';
-import { storyLinePreview } from './types';
+import {
+  ENGLISH_CATEGORY,
+  isEnglishStory,
+  storyLinePreview,
+  storyMatchesCategory,
+} from './types';
 
 /** 兼容 D1 / 本地 mock 的最小接口 */
 export type DbLike = {
@@ -21,7 +26,7 @@ export function filterStories(
   let result = stories;
 
   if (category) {
-    result = result.filter((s) => s.category === category);
+    result = result.filter((s) => storyMatchesCategory(s, category));
   }
 
   if (q) {
@@ -44,12 +49,16 @@ export function computeStats(stories: Story[]) {
     return acc;
   }, {});
 
+  const englishCount = stories.filter(isEnglishStory).length;
+  if (englishCount > 0) {
+    counts[ENGLISH_CATEGORY] = englishCount;
+  }
+
   return {
     total: stories.length,
-    byCategory: Object.entries(counts).map(([category, count]) => ({
-      category,
-      count,
-    })),
+    byCategory: Object.entries(counts)
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count),
   };
 }
 
@@ -61,7 +70,11 @@ export async function getStoriesFromDb(
   let query = 'SELECT * FROM stories WHERE 1=1';
   const params: unknown[] = [];
 
-  if (category) {
+  if (category === ENGLISH_CATEGORY) {
+    query +=
+      " AND (category = ? OR LOWER(IFNULL(language, '')) = 'en' OR LOWER(IFNULL(language, '')) LIKE 'en-%')";
+    params.push(ENGLISH_CATEGORY);
+  } else if (category) {
     query += ' AND category = ?';
     params.push(category);
   }
@@ -104,9 +117,26 @@ export async function getStoryStatsFromDb(db: DbLike) {
     )
     .all<{ category: string; count: number }>();
 
+  const english = await db
+    .prepare(
+      `SELECT COUNT(*) as count FROM stories
+       WHERE category = ?
+          OR LOWER(IFNULL(language, '')) = 'en'
+          OR LOWER(IFNULL(language, '')) LIKE 'en-%'`,
+    )
+    .bind(ENGLISH_CATEGORY)
+    .first<{ count: number }>();
+
+  const rows = byCategory.results.filter((r) => r.category !== ENGLISH_CATEGORY);
+  const englishCount = english?.count ?? 0;
+  if (englishCount > 0) {
+    rows.push({ category: ENGLISH_CATEGORY, count: englishCount });
+    rows.sort((a, b) => b.count - a.count);
+  }
+
   return {
     total: total?.count ?? 0,
-    byCategory: byCategory.results,
+    byCategory: rows,
   };
 }
 
