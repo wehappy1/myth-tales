@@ -1,3 +1,4 @@
+import { VoiceSettings } from '@/components/VoiceSettings';
 import { Paths } from '@/constants';
 import { fetchStories } from '@/lib/api';
 import {
@@ -139,6 +140,8 @@ export default function Layouts() {
             {categoryButtons}
           </nav>
 
+          <VoiceSettings className="header-voices desktop-only" />
+
           <button
             type="button"
             className={`category-trigger mobile-only${
@@ -179,6 +182,7 @@ export default function Layouts() {
             新增故事
           </Link>
         </nav>
+        <VoiceSettings className="category-drawer-voices" />
       </aside>
 
       <main className="container">
